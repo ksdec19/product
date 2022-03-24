@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>상품상세</title>
+</head>
+<body>
+<h3>상품상세</h3>
+<hr>
+<form th:method="post" th:object="${detailForm}">
+  <p>상품이름<input type="text" id="name" ></p>
+  <p>상품수량<input type="text" id="quantity"></p>
+  <p>상품금액<input type="text" id="price"></p>
+  <li>
+    <button type="button">수정</button>
+    <button type="button">삭제</button>
+  </li>
+</form>
+
+</body>
+</html>

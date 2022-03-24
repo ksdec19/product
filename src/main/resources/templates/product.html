@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>상품관리 CRUD</title>
+</head>
+<body>
+<h3>상품관리 CRUD</h3>
+<hr>
+<form action="">
+  <p>@상품명<input type="text" id="pname"></p>
+  <p>상품수량<input type="text" id="quantity"></p>
+  <p>상품가격<input type="text" id="price"></p>
+</form>
+<div>
+  <button id="addBtn">등록</button>
+  <!--    <button id="modBtn">수정</button>-->
+  <!--    <button id="delByIdBtn">삭제</button>-->
+  <button id="listBtn">목록</button>
+  <p>조회&수정<input type="text" id="searchById" placeholder="검색/수정할 상품ID 입력">
+    <button id="searchByIdBtn">검색</button>
+    <button id="modByIdBtn">수정</button>
+  </p>
+</div>
+<br>
+<h4>상품목록</h4>
+<div id="productList"></div>
+
+<script>
+  addBtn.addEventListener('click', add_f);
+  searchByIdBtn.addEventListener('click', detail_f);
+  modByIdBtn.addEventListener('click', update_f);
+  listBtn.addEventListener('click', list_f);
+
+  // 상품등록
+  function add_f(e) {
+    const data = {};
+    data.productName = pname.value;
+    data.productQuantity = quantity.value;
+    data.productPrice = price.value;
+
+    fetch('/product/api', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(data)  // javascript 객체를 json 포맷 문자열로 변환
+    }).then(res => res.json())         // json포맷 문자열을 javascript 객체로 변환
+        .then(res => {
+          console.log(res);  // 성공시
+          list_f();
+          pname.value = null;
+          quantity.value = null;
+          price.value = null;
+          searchById.value = null;
+        })
+        .catch(err => {
+          console.error('Err:', err)
+        });  // 실패시
+    console.log('after fetch');
+  }
+
+  // 건별조회
+  function detail_f(e) {
+    const url = `/product/api/${searchById.value}`
+    fetch(url, {
+      method: 'GET'
+    }).then(res => res.json())
+        .then(res => {
+          printItem(res)
+        })
+        .catch(err => {
+          console.error('Err:', err)
+        });
+  }
+
+  // 건별조회 출력
+  function printItem(res) {
+    let html = '';
+
+    if (res.rtcd === '00') { //목록이 있는 경우
+      // res = JSON.parse(res);
+      console.log(res);
+      console.log(res.data);
+
+      const $product = res.data;
+      html += `<p>`;
+      html += `상품ID:${$product.productId}, 상품:${$product.productName}, 상품수량:${$product.productQuantity}, 상품가격:${$product.productPrice}`;
+      html += `<button data-item-id='${$product.productId}' onclick='del_f(event)'>삭제</button>`;
+      html += `</p>`;
+
+    } else if (res.rtcd === '99') { //목록이 없는 경우
+      html = '';
+    } else {
+      alert(res.rtmsg);
+    }
+    productList.innerHTML = html;
+  }
+
+  // 상품목록 가져오기(전체조회)
+  function list_f(e) {
+
+    fetch('/product/api', {
+      method: 'GET'
+    }).then(res => res.json())
+        .then(res => {
+          printProductList(res);
+          searchById.value = null;
+        })
+        .catch(err => {
+          console.error('Err:', err)
+        });
+  }
+
+  // 상품목록 전체조회
+  function printProductList(res) {
+    console.log(res);
+    let html = '';
+    if (res.rtcd === '00') {   // 목록이 있는 경우
+      res.data.forEach(item => {
+        html += `<p>`;
+        html += `상품번호:${item.productId}, 상품이름:${item.productName}, 상품수량:${item.productQuantity}, 상품가격:${item.productPrice}`;
+        html += `<button  data-item-id='${item.productId}' onclick='del_f(event)'>삭제</button>`;
+        html += `</p>`;
+      });
+    } else if (res.rtcd === '02') {  // 목록이 없는 경우
+      html = '';
+    } else {
+      alert(res.rtmsg);
+    }
+    productList.innerHTML = html;
+  }
+
+  // 상품삭제
+  function del_f(e) {
+    console.log(e.target);
+
+    const url = `/product/api/${e.target.dataset.itemId}`
+    fetch(url, {
+      method: 'DELETE'
+    }).then(res => res.json())
+        .then(res => {
+          console.log(res);
+          list_f();
+        })
+        .catch(err => {
+          console.error('Err:', err)
+        });
+  }
+
+  // 상품수정
+
+  function update_f(e) {
+    const data = {};
+    data.productId = searchById.value;
+    data.productName = pname.value;
+    data.productQuantity = quantity.value;
+    data.productPrice = price.value;
+    const url = `/product/api/${searchById.value}`;
+
+    fetch(url, {
+      method: 'PATCH',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(data)  // js객체 => json포맷 문자열 변환
+    }).then(res => res.json())         // json포맷 문자열 => js객체 변환
+        .then(res => {
+          console.log(res);
+          list_f();
+          pname.value = null;
+          quantity.value = null;
+          price.value = null;
+          searchById.value = null;
+        })
+        .catch(err => {
+          console.error('Err:', err)
+        });
+  }
+
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>상품등록</title>
+</head>
+<body>
+  <h3>상품등록</h3>
+  <hr>
+  <form th:action th:method="post" th:object="${addForm}">
+    <p>상품이름<input type="text" id="name" th:field="*{productName}"></p>
+    <p>상품수량<input type="text" id="quantity" th:field="*{productQuantity}"></p>
+    <p>상품금액<input type="text" id="price" th:field="*{productPrice}"></p>
+    <li>
+      <button type="button" id="writeBtn">등록</button>
+      <button type="button" id="listBtn">조회</button>
+    </li>
+  </form>
+  <script>
+    writeBtn.addEventListener('click', e=>{
+      e.target.closest('form').submit();
+    });
+    listBtn.addEventListener('click', e=>{
+      const url = `/product/all`;
+      location.href = url;
+    });
+
+  </script>
+
+</body>
+</html>
